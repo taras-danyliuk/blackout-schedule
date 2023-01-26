@@ -24,13 +24,11 @@ const dataset = {
 const initialData = { datasets: [dataset] };
 
 
-const initialMessage = ``;
-
 function App() {
   const [showInput, setShowInput] = useState(false);
-  const [value, setValue] = useState('');
+  const [value, setValue] = useState(localStorage.getItem('value') || '');
   const [data, setData] = useState(initialData)
-  const [message, setMessage] = useState(initialMessage)
+  const [message, setMessage] = useState(value)
 
 
   useEffect(() => {
@@ -73,6 +71,14 @@ function App() {
     setData({ datasets: [{ ...dataset, backgroundColor: bgs }] });
   }, [message])
 
+
+  const save = () => {
+    localStorage.setItem('value', value);
+    setMessage(value);
+    setShowInput(false);
+  }
+
+
   return (
     <div className="wrapper">
       <div className="chart-wrapper">
@@ -111,11 +117,7 @@ function App() {
       {showInput && (
         <div className='input-wrapper'>
           <textarea className='input' value={value} onChange={e => setValue(e.target.value)} rows={20}/>
-
-          <button className='button' onClick={() => {
-            setMessage(value);
-            setShowInput(false);
-          }}>Save</button>
+          <button className='button' onClick={save}>Save</button>
         </div>
       )}
     </div>
