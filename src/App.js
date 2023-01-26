@@ -108,8 +108,6 @@ function App() {
         <span className='number' style={{ top: '17%', left: '16%' }}>21</span>
         <span className='number' style={{ top: '9%', left: '26%' }}>22</span>
         <span className='number' style={{ top: '4.5%', left: '37.5%' }}>23</span>
-
-        <span className='number' style={{ top: '50%', left: '50%', fontSize: '22px' }}>2.3-2.4</span>
       </div>
 
       <button className='button set' onClick={() => setShowInput(true)}>Set</button>
