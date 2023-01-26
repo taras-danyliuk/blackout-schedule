@@ -26,24 +26,35 @@ const initialData = { datasets: [dataset] };
 
 function App() {
   const [showInput, setShowInput] = useState(false);
-  const [value, setValue] = useState(localStorage.getItem('value') || '');
+  const [value, setValue] = useState(localStorage.getItem('message') || '');
+  const [message, setMessage] = useState(value);
+  const [queues, setQueues] = useState([]);
   const [data, setData] = useState(initialData)
-  const [message, setMessage] = useState(value)
 
+  const [parsedMessage, setParsedMessage] = useState({});
+  const [activeSection, setActiveSection] = useState('');
 
   useEffect(() => {
-    if (!message) return;
-    const bgs = [...dataset.backgroundColor];
-    const arr = message.split('\n');
+    const grouped = {}
+    const lines = message
+      .split('\n')
+      .filter(line => !!line.length && (line.includes(':00') || line.includes('Підчерг')) && !line.includes('4.'))
 
-    let off = '';
-    let on = '';
-    let possiblyOff = ''
-    arr.forEach(el => {
-      if (el.includes('черги будуть вимкнені')) off = el;
-      if (el.includes('черги будуть з електропостачанням')) on = el;
-      if (el.includes('можливі вимкнення')) possiblyOff = el;
+    let current = '';
+    lines.forEach(line => {
+      if (line.includes('Підчерг')) return current = line;
+      if (current && !grouped[current]) grouped[current] = [];
+      grouped[current].push(line)
     });
+
+    setQueues(Object.keys(grouped));
+    setParsedMessage(grouped);
+  }, [message])
+
+  useEffect(() => {
+    if (!activeSection || !parsedMessage[activeSection]) return;
+    const bgs = [...dataset.backgroundColor];
+    const [on, off, possiblyOff] = parsedMessage[activeSection];
 
     const parseAndSet = (string, color) => {
       const ranges = string.split(',').map(el => {
@@ -69,18 +80,30 @@ function App() {
     parseAndSet(possiblyOff, yellow);
 
     setData({ datasets: [{ ...dataset, backgroundColor: bgs }] });
-  }, [message])
+  }, [activeSection])
 
 
-  const save = () => {
-    localStorage.setItem('value', value);
+  const onSave = () => {
+    localStorage.setItem('message', value);
     setMessage(value);
     setShowInput(false);
+  }
+
+  const onSelect = (key) => {
+    setActiveSection(key);
   }
 
 
   return (
     <div className="wrapper">
+      <div className='queue-wrapper'>
+        {queues.map(queue => (
+          <div key={queue} className='queue-button' onClick={() => onSelect(queue)}>
+            {queue.replace(/[^\d.,\s]/g, '').trim()}
+          </div>
+        ))}
+      </div>
+
       <div className="chart-wrapper">
         <Doughnut data={data}/>
 
@@ -108,6 +131,10 @@ function App() {
         <span className='number' style={{ top: '17%', left: '16%' }}>21</span>
         <span className='number' style={{ top: '9%', left: '26%' }}>22</span>
         <span className='number' style={{ top: '4.5%', left: '37.5%' }}>23</span>
+
+        <span className='number' style={{ top: '50%', left: '50%' }}>
+          {activeSection.replace(/[^\d.,\s]/g, '').trim()}
+        </span>
       </div>
 
       <button className='button set' onClick={() => setShowInput(true)}>Set</button>
@@ -115,7 +142,10 @@ function App() {
       {showInput && (
         <div className='input-wrapper'>
           <textarea className='input' value={value} onChange={e => setValue(e.target.value)} rows={20}/>
-          <button className='button' onClick={save}>Save</button>
+          <div>
+            <button className='button outlined' onClick={() => setValue('')}>Clear</button>
+            <button className='button' onClick={onSave}>Save</button>
+          </div>
         </div>
       )}
     </div>
