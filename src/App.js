@@ -29,10 +29,10 @@ function App() {
   const [value, setValue] = useState(localStorage.getItem('message') || '');
   const [message, setMessage] = useState(value);
   const [queues, setQueues] = useState([]);
-  const [data, setData] = useState(initialData)
+  const [data, setData] = useState(initialData);
 
   const [parsedMessage, setParsedMessage] = useState({});
-  const [activeSection, setActiveSection] = useState('');
+  const [activeSection, setActiveSection] = useState(localStorage.getItem('activeSection') || '');
 
   useEffect(() => {
     const grouped = {}
@@ -80,7 +80,7 @@ function App() {
     parseAndSet(possiblyOff, yellow);
 
     setData({ datasets: [{ ...dataset, backgroundColor: bgs }] });
-  }, [activeSection])
+  }, [activeSection, parsedMessage])
 
 
   const onSave = () => {
@@ -90,6 +90,7 @@ function App() {
   }
 
   const onSelect = (key) => {
+    localStorage.setItem('activeSection', key);
     setActiveSection(key);
   }
 
