@@ -38,11 +38,13 @@ function App() {
     const grouped = {}
     const lines = message
       .split('\n')
-      .filter(line => !!line.length && (line.includes(':00') || line.includes('Підчерг')) && !line.includes('4.'))
+      .filter(line => !!line.length && (line.includes(':00') || line.includes('Підчерг')))
 
     let current = '';
     lines.forEach(line => {
       if (line.includes('Підчерг')) return current = line;
+      if (line.includes('4.1')) grouped['4.1'] = line;
+      if (line.includes('4.2')) grouped['4.2'] = line;
       if (current && !grouped[current]) grouped[current] = [];
       grouped[current].push(line)
     });
@@ -54,15 +56,13 @@ function App() {
   useEffect(() => {
     if (!activeSection || !parsedMessage[activeSection]) return;
     const bgs = [...dataset.backgroundColor];
-    const [on, off, possiblyOff] = parsedMessage[activeSection];
-
     const parseAndSet = (string, color) => {
-      const ranges = string.split(',').map(el => {
+      const ranges = string.split(/,| та /g).map(el => {
         return el
-          .replace(/[\-А-яі]/g, '')
+          .replace(/[^\d:\s]/g, '')
           .trim()
           .replace(/\s{2,}/, ' ')
-      })
+      });
       ranges.forEach(range => {
         const [from, to] = range.split(' ');
         const fromNumber = +from.replace(/:.+/g, '');
@@ -74,10 +74,19 @@ function App() {
       })
     }
 
-    // Parse on
-    parseAndSet(on, green);
-    parseAndSet(off, red);
-    parseAndSet(possiblyOff, yellow);
+    if (activeSection === '4.1' || activeSection === '4.2') {
+      bgs.fill(green);
+      const line = parsedMessage[activeSection].replace(/4.1|4.2/g, '');
+      parseAndSet(line, red);
+    }
+    else {
+      const [on, off, possiblyOff] = parsedMessage[activeSection];
+
+      // Parse on
+      parseAndSet(on, green);
+      parseAndSet(off, red);
+      parseAndSet(possiblyOff, yellow);
+    }
 
     setData({ datasets: [{ ...dataset, backgroundColor: bgs }] });
   }, [activeSection, parsedMessage])
