@@ -54,7 +54,7 @@ function App() {
 
     let current = '';
     lines.forEach(line => {
-      if (line.includes('Підчерг')) return current = line;
+      if (line.includes('Підчерг')) return current = line.replace(/[^\d.,\s]/g, '').trim();
       if (line.includes('4.1')) grouped['4.1'] = line;
       if (line.includes('4.2')) grouped['4.2'] = line;
       if (current && !grouped[current]) grouped[current] = [];
@@ -105,6 +105,7 @@ function App() {
 
   const onSave = () => {
     localStorage.setItem('message', value);
+    setData(initialData);
     setMessage(value);
     setShowInput(false);
   }
@@ -123,15 +124,17 @@ function App() {
   return (
     <div className="wrapper">
       <div className={`queue-picker ${queueListOpen ? 'opened' : ''}`} onClick={onClickQueueList}>
-        {activeSection.replace(/[^\d.,\s]/g, '').trim()}
+        {activeSection && parsedMessage[activeSection] ? (
+          <span>{activeSection}</span>
+        ) : (
+          <span>—</span>
+        )}
       </div>
 
       {queueListOpen && (
         <div className='queue-wrapper'>
           {Object.keys(parsedMessage).map(queue => (
-            <div key={queue} className='queue-button' onClick={() => onSelect(queue)}>
-              {queue.replace(/[^\d.,\s]/g, '').trim()}
-            </div>
+            <div key={queue} className='queue-button' onClick={() => onSelect(queue)}>{queue}</div>
           ))}
         </div>
       )}
@@ -166,13 +169,14 @@ function App() {
           <span className='number' style={{ top: '4.5%', left: '37.5%' }}>23</span>
 
           <span className='number' style={{ top: '46%', left: '50%', fontSize: '20px' }}>
-            {activeSection.replace(/[^\d.,\s]/g, '').trim()}
+            {activeSection && !!parsedMessage[activeSection] ? activeSection : '—'}
           </span>
 
-          <span className='number' style={{ top: '54%', left: '50%' }}>на {date}</span>
+          <span className='number' style={{ top: '54%', left: '50%' }}>
+            {!!date ? `на ${date}` : '—'}
+          </span>
         </div>
       </div>
-
 
       <button className='button set' onClick={() => setShowInput(true)}>Set</button>
 
