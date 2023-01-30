@@ -117,7 +117,7 @@ function App() {
 
       <div className='chart-wrapper'>
         <div className="chart-holder">
-          <Doughnut data={data}/>
+          <Doughnut data={data} options={{plugins: {tooltip: { enabled: false }}}}/>
 
           <span className='number' style={{ top: '3%', left: '50%' }}>00</span>
           <span className='number' style={{ top: '4.5%', left: '62%' }}>1</span>
