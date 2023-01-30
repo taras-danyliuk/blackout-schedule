@@ -1,11 +1,12 @@
 .wrapper {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  /*justify-content: center;*/
   align-items: center;
-  height: 100vh;
+  height: calc(100vh - 64px);
   background: #333;
   position: relative;
+  padding-top: 64px;
 }
 
 .queue-wrapper {
@@ -16,25 +17,35 @@
   flex-wrap: wrap;
   justify-content: center;
   max-width: 100%;
-  margin: 0 16px 40px;
+  margin: 0 16px;
+  flex-shrink: 0;
 }
 
 .queue-button {
-  padding: 6px 12px;
+  padding: 4px 12px;
   border-radius: 4px;
   background: rgba(255,255,255,0.2);
   color: rgba(255,255,255,0.7);
   cursor: pointer;
+  font-size: 14px;
   margin: 4px;
 }
 
 .chart-wrapper {
   width: 100%;
   max-width: 500px;
-  position: relative;
-  padding: 20px;
+  padding: 0 8px;
   margin: 0 16px;
   box-sizing: border-box;
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+}
+
+.chart-holder {
+  position: relative;
+  padding: 12px 20px 20px;
+  width: 100%;
 }
 
 .number {

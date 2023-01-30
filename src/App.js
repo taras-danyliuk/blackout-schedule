@@ -7,9 +7,9 @@ import { useEffect, useState } from "react";
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 
-const red = '#d1001f';
-const green = '#4cbb17';
-const yellow = '#e5dE00';
+const red = '#d2222d';
+const green = '#238823';
+const yellow = '#ffbf00';
 const dataset = {
   data: [
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -19,26 +19,28 @@ const dataset = {
     red, red, red, red, red, red, red, red, red, red, red, red,
     red, red, red, red, red, red, red, red, red, red, red, red
   ],
-  borderColor: ['rgba(0, 0, 0, 0.2)']
+  borderColor: ['rgba(0,0,0,0.1']
 }
 const initialData = { datasets: [dataset] };
 
 
 function App() {
+  const [data, setData] = useState(initialData);
   const [showInput, setShowInput] = useState(false);
   const [value, setValue] = useState(localStorage.getItem('message') || '');
   const [message, setMessage] = useState(value);
-  const [queues, setQueues] = useState([]);
-  const [data, setData] = useState(initialData);
-
   const [parsedMessage, setParsedMessage] = useState({});
   const [activeSection, setActiveSection] = useState(localStorage.getItem('activeSection') || '');
+  const [date, setDate] = useState('22');
 
   useEffect(() => {
     const grouped = {}
-    const lines = message
-      .split('\n')
-      .filter(line => !!line.length && (line.includes(':00') || line.includes('Підчерг')))
+    let lines = message.split('\n').filter(line => !!line.length);
+    const index = lines[0].search(/\d/);
+    const targetDate = lines[0].substring(index).replace(/[^\dА-яі\s]/g, '').trim();
+    setDate(targetDate);
+
+    lines = lines.filter(line => line.includes(':00') || line.includes('Підчерг'))
 
     let current = '';
     lines.forEach(line => {
@@ -49,7 +51,6 @@ function App() {
       grouped[current].push(line)
     });
 
-    setQueues(Object.keys(grouped));
     setParsedMessage(grouped);
   }, [message])
 
@@ -107,45 +108,50 @@ function App() {
   return (
     <div className="wrapper">
       <div className='queue-wrapper'>
-        {queues.map(queue => (
+        {Object.keys(parsedMessage).map(queue => (
           <div key={queue} className='queue-button' onClick={() => onSelect(queue)}>
             {queue.replace(/[^\d.,\s]/g, '').trim()}
           </div>
         ))}
       </div>
 
-      <div className="chart-wrapper">
-        <Doughnut data={data}/>
+      <div className='chart-wrapper'>
+        <div className="chart-holder">
+          <Doughnut data={data}/>
 
-        <span className='number' style={{ top: '3%', left: '50%' }}>00</span>
-        <span className='number' style={{ top: '4.5%', left: '62%' }}>1</span>
-        <span className='number' style={{ top: '9%', left: '74%' }}>2</span>
-        <span className='number' style={{ top: '17%', left: '84%' }}>3</span>
-        <span className='number' style={{ top: '26.5%', left: '91.5%' }}>4</span>
-        <span className='number' style={{ top: '38.5%', left: '96%' }}>5</span>
-        <span className='number' style={{ top: '50.5%', left: '97.5%' }}>6</span>
-        <span className='number' style={{ top: '63.5%', left: '96.5%' }}>7</span>
-        <span className='number' style={{ top: '75%', left: '92%' }}>8</span>
-        <span className='number' style={{ top: '84.5%', left: '84%' }}>9</span>
-        <span className='number' style={{ top: '92%', left: '74%' }}>10</span>
-        <span className='number' style={{ top: '97%', left: '62%' }}>11</span>
-        <span className='number' style={{ bottom: '-12px', left: '50%' }}>12</span>
-        <span className='number' style={{ top: '97%', left: '37.5%' }}>13</span>
-        <span className='number' style={{ top: '92%', left: '26%' }}>14</span>
-        <span className='number' style={{ top: '84.5%', left: '16%' }}>15</span>
-        <span className='number' style={{ top: '75%', left: '8%' }}>16</span>
-        <span className='number' style={{ top: '63.5%', left: '3.5%' }}>17</span>
-        <span className='number' style={{ top: '51%', left: '10px' }}>18</span>
-        <span className='number' style={{ top: '38.5%', left: '3.5%' }}>19</span>
-        <span className='number' style={{ top: '27%', left: '8%' }}>20</span>
-        <span className='number' style={{ top: '17%', left: '16%' }}>21</span>
-        <span className='number' style={{ top: '9%', left: '26%' }}>22</span>
-        <span className='number' style={{ top: '4.5%', left: '37.5%' }}>23</span>
+          <span className='number' style={{ top: '3%', left: '50%' }}>00</span>
+          <span className='number' style={{ top: '4.5%', left: '62%' }}>1</span>
+          <span className='number' style={{ top: '9%', left: '74%' }}>2</span>
+          <span className='number' style={{ top: '17%', left: '84%' }}>3</span>
+          <span className='number' style={{ top: '26.5%', left: '91.5%' }}>4</span>
+          <span className='number' style={{ top: '38.5%', left: '96%' }}>5</span>
+          <span className='number' style={{ top: '50.5%', left: '97.5%' }}>6</span>
+          <span className='number' style={{ top: '63.5%', left: '96.5%' }}>7</span>
+          <span className='number' style={{ top: '75%', left: '92%' }}>8</span>
+          <span className='number' style={{ top: '84.5%', left: '84%' }}>9</span>
+          <span className='number' style={{ top: '92%', left: '74%' }}>10</span>
+          <span className='number' style={{ top: '97%', left: '62%' }}>11</span>
+          <span className='number' style={{ bottom: '-12px', left: '50%' }}>12</span>
+          <span className='number' style={{ top: '97%', left: '37.5%' }}>13</span>
+          <span className='number' style={{ top: '92%', left: '26%' }}>14</span>
+          <span className='number' style={{ top: '84.5%', left: '16%' }}>15</span>
+          <span className='number' style={{ top: '75%', left: '8%' }}>16</span>
+          <span className='number' style={{ top: '63.5%', left: '3.5%' }}>17</span>
+          <span className='number' style={{ top: '51%', left: '10px' }}>18</span>
+          <span className='number' style={{ top: '38.5%', left: '3.5%' }}>19</span>
+          <span className='number' style={{ top: '27%', left: '8%' }}>20</span>
+          <span className='number' style={{ top: '17%', left: '16%' }}>21</span>
+          <span className='number' style={{ top: '9%', left: '26%' }}>22</span>
+          <span className='number' style={{ top: '4.5%', left: '37.5%' }}>23</span>
 
-        <span className='number' style={{ top: '50%', left: '50%' }}>
-          {activeSection.replace(/[^\d.,\s]/g, '').trim()}
-        </span>
+          <span className='number' style={{ top: '46%', left: '50%', fontSize: '20px' }}>
+            {activeSection.replace(/[^\d.,\s]/g, '').trim()}
+          </span>
+
+          <span className='number' style={{ top: '54%', left: '50%' }}>на {date}</span>
+        </div>
       </div>
+
 
       <button className='button set' onClick={() => setShowInput(true)}>Set</button>
 
