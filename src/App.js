@@ -44,9 +44,11 @@ function App() {
   useEffect(() => {
     const grouped = {}
     let lines = message.split('\n').filter(line => !!line.length);
-    const index = lines[0].search(/\d/);
-    const targetDate = lines[0].substring(index).replace(/[^\dА-яі\s]/g, '').trim();
-    setDate(targetDate);
+    if (lines[0]) {
+      const index = lines[0].search(/\d/);
+      const targetDate = lines[0].substring(index).replace(/[^\dА-яі\s]/g, '').trim();
+      setDate(targetDate);
+    }
 
     lines = lines.filter(line => line.includes(':00') || line.includes('Підчерг'))
 
