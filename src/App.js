@@ -32,6 +32,14 @@ function App() {
   const [parsedMessage, setParsedMessage] = useState({});
   const [activeSection, setActiveSection] = useState(localStorage.getItem('activeSection') || '');
   const [date, setDate] = useState('22');
+  const [queueListOpen, setQueueListOpen] = useState(localStorage.getItem('queueListOpen') === 'true');
+
+  useEffect(() => {
+    if (localStorage.getItem('queueListOpen') === null) {
+      localStorage.setItem('queueListOpen', 'true');
+      setQueueListOpen(true);
+    }
+  }, [])
 
   useEffect(() => {
     const grouped = {}
@@ -104,16 +112,27 @@ function App() {
     setActiveSection(key);
   }
 
+  const onClickQueueList = () => {
+    localStorage.setItem('queueListOpen', (!queueListOpen).toString());
+    setQueueListOpen(!queueListOpen);
+  }
+
 
   return (
     <div className="wrapper">
-      <div className='queue-wrapper'>
-        {Object.keys(parsedMessage).map(queue => (
-          <div key={queue} className='queue-button' onClick={() => onSelect(queue)}>
-            {queue.replace(/[^\d.,\s]/g, '').trim()}
-          </div>
-        ))}
+      <div className={`queue-picker ${queueListOpen ? 'opened' : ''}`} onClick={onClickQueueList}>
+        {activeSection.replace(/[^\d.,\s]/g, '').trim()}
       </div>
+
+      {queueListOpen && (
+        <div className='queue-wrapper'>
+          {Object.keys(parsedMessage).map(queue => (
+            <div key={queue} className='queue-button' onClick={() => onSelect(queue)}>
+              {queue.replace(/[^\d.,\s]/g, '').trim()}
+            </div>
+          ))}
+        </div>
+      )}
 
       <div className='chart-wrapper'>
         <div className="chart-holder">

@@ -9,6 +9,22 @@
   padding-top: 64px;
 }
 
+.queue-picker {
+  color: rgba(255,255,255,0.7);
+  align-self: flex-start;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 8px 20px;
+  border-radius: 4px;
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.queue-picker.opened {
+  background: rgba(255,255,255,0.2);
+}
+
 .queue-wrapper {
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 4px;
