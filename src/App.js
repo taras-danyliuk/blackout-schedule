@@ -57,6 +57,8 @@ function App() {
       if (line.includes('Підчерг')) return current = line.replace(/[^\d.,\s]/g, '').trim();
       if (line.includes('4.1')) grouped['4.1'] = line;
       if (line.includes('4.2')) grouped['4.2'] = line;
+      if (line.includes('4.3')) grouped['4.3'] = line;
+      if (line.includes('4.4')) grouped['4.4'] = line;
       if (current && !grouped[current]) grouped[current] = [];
       grouped[current].push(line)
     });
@@ -77,7 +79,9 @@ function App() {
       ranges.forEach(range => {
         const [from, to] = range.split(' ');
         const fromNumber = +from.replace(/:.+/g, '');
-        const toNumber = +to.replace(/:.+/g, '');
+        let toNumber = +to.replace(/:.+/g, '');
+        // 24:00 sometimes is marked as 00:00
+        if (toNumber === 0) toNumber = 24;
 
         for (let i = fromNumber; i < toNumber; i++) {
           bgs[i] = color;
@@ -85,9 +89,9 @@ function App() {
       })
     }
 
-    if (activeSection === '4.1' || activeSection === '4.2') {
+    if (activeSection === '4.1' || activeSection === '4.2' || activeSection === '4.3' || activeSection === '4.4') {
       bgs.fill(green);
-      const line = parsedMessage[activeSection].replace(/4.1|4.2/g, '');
+      const line = parsedMessage[activeSection].replace(/4.1|4.2|4.3|4.4/g, '');
       parseAndSet(line, red);
     }
     else {
@@ -105,7 +109,7 @@ function App() {
 
   const onSave = () => {
     localStorage.setItem('message', value);
-    setData(initialData);
+    if (message !== value) setData(initialData);
     setMessage(value);
     setShowInput(false);
   }
