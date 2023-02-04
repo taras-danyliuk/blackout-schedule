@@ -60,7 +60,7 @@ function App() {
       if (line.includes('4.3')) grouped['4.3'] = line;
       if (line.includes('4.4')) grouped['4.4'] = line;
       if (current && !grouped[current]) grouped[current] = [];
-      grouped[current].push(line)
+      if (current) grouped[current].push(line)
     });
 
     setParsedMessage(grouped);
