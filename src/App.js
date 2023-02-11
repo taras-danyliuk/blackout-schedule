@@ -42,68 +42,74 @@ function App() {
   }, [])
 
   useEffect(() => {
-    const grouped = {}
-    let lines = message.split('\n').filter(line => !!line.length);
-    if (lines[0]) {
-      const index = lines[0].search(/\d/);
-      const targetDate = lines[0].substring(index).replace(/[^\dА-яі\s]/g, '').trim();
-      setDate(targetDate);
+    try {
+      const grouped = {}
+      let lines = message.split('\n').filter(line => !!line.length);
+      if (lines[0]) {
+        const index = lines[0].search(/\d/);
+        const targetDate = lines[0].substring(index).replace(/[^\dА-яі\s]/g, '').trim();
+        setDate(targetDate);
+      }
+
+      lines = lines.filter(line => line.includes(':00') || line.includes('Підчерг'))
+
+      let current = '';
+      lines.forEach(line => {
+        if (line.includes('Підчерг')) return current = line.replace(/[^\d.,\s]/g, '').trim();
+        if (line.includes('4.1')) grouped['4.1'] = line;
+        if (line.includes('4.2')) grouped['4.2'] = line;
+        if (line.includes('4.3')) grouped['4.3'] = line;
+        if (line.includes('4.4')) grouped['4.4'] = line;
+        if (current && !grouped[current]) grouped[current] = [];
+        if (current) grouped[current].push(line)
+      });
+
+      setParsedMessage(grouped);
     }
-
-    lines = lines.filter(line => line.includes(':00') || line.includes('Підчерг'))
-
-    let current = '';
-    lines.forEach(line => {
-      if (line.includes('Підчерг')) return current = line.replace(/[^\d.,\s]/g, '').trim();
-      if (line.includes('4.1')) grouped['4.1'] = line;
-      if (line.includes('4.2')) grouped['4.2'] = line;
-      if (line.includes('4.3')) grouped['4.3'] = line;
-      if (line.includes('4.4')) grouped['4.4'] = line;
-      if (current && !grouped[current]) grouped[current] = [];
-      if (current) grouped[current].push(line)
-    });
-
-    setParsedMessage(grouped);
+    catch(e) {}
   }, [message])
 
   useEffect(() => {
-    if (!activeSection || !parsedMessage[activeSection]) return;
-    const bgs = [...dataset.backgroundColor];
-    const parseAndSet = (string, color) => {
-      const ranges = string.split(/,| та /g).map(el => {
-        return el
-          .replace(/[^\d:\s]/g, '')
-          .trim()
-          .replace(/\s{2,}/, ' ')
-      });
-      ranges.forEach(range => {
-        const [from, to] = range.split(' ');
-        const fromNumber = +from.replace(/:.+/g, '');
-        let toNumber = +to.replace(/:.+/g, '');
-        // 24:00 sometimes is marked as 00:00
-        if (toNumber === 0) toNumber = 24;
+    try {
+      if (!activeSection || !parsedMessage[activeSection]) return;
+      const bgs = [...dataset.backgroundColor];
+      const parseAndSet = (string, color) => {
+        const ranges = string.split(/,| та /g).map(el => {
+          return el
+            .replace(/[^\d:\s]/g, '')
+            .trim()
+            .replace(/\s{2,}/, ' ')
+        });
+        ranges.forEach(range => {
+          const [from, to] = range.split(' ');
+          const fromNumber = +from.replace(/:.+/g, '');
+          let toNumber = +to.replace(/:.+/g, '');
+          // 24:00 sometimes is marked as 00:00
+          if (toNumber === 0) toNumber = 24;
 
-        for (let i = fromNumber; i < toNumber; i++) {
-          bgs[i] = color;
-        }
-      })
+          for (let i = fromNumber; i < toNumber; i++) {
+            bgs[i] = color;
+          }
+        })
+      }
+
+      if (activeSection === '4.1' || activeSection === '4.2' || activeSection === '4.3' || activeSection === '4.4') {
+        bgs.fill(green);
+        const line = parsedMessage[activeSection].replace(/4.1|4.2|4.3|4.4/g, '');
+        parseAndSet(line, red);
+      }
+      else {
+        const [on, off, possiblyOff] = parsedMessage[activeSection];
+
+        // Parse on
+        parseAndSet(on, green);
+        parseAndSet(off, red);
+        parseAndSet(possiblyOff, yellow);
+      }
+
+      setData({ datasets: [{ ...dataset, backgroundColor: bgs }] });
     }
-
-    if (activeSection === '4.1' || activeSection === '4.2' || activeSection === '4.3' || activeSection === '4.4') {
-      bgs.fill(green);
-      const line = parsedMessage[activeSection].replace(/4.1|4.2|4.3|4.4/g, '');
-      parseAndSet(line, red);
-    }
-    else {
-      const [on, off, possiblyOff] = parsedMessage[activeSection];
-
-      // Parse on
-      parseAndSet(on, green);
-      parseAndSet(off, red);
-      parseAndSet(possiblyOff, yellow);
-    }
-
-    setData({ datasets: [{ ...dataset, backgroundColor: bgs }] });
+    catch(e) {}
   }, [activeSection, parsedMessage])
 
 
