@@ -66,7 +66,9 @@ function App() {
 
       setParsedMessage(grouped);
     }
-    catch(e) {}
+    catch(e) {
+      console.log(e)
+    }
   }, [message])
 
   useEffect(() => {
@@ -74,6 +76,8 @@ function App() {
       if (!activeSection || !parsedMessage[activeSection]) return;
       const bgs = [...dataset.backgroundColor];
       const parseAndSet = (string, color) => {
+        if (!string) return;
+
         const ranges = string.split(/,| та /g).map(el => {
           return el
             .replace(/[^\d:\s]/g, '')
@@ -109,7 +113,9 @@ function App() {
 
       setData({ datasets: [{ ...dataset, backgroundColor: bgs }] });
     }
-    catch(e) {}
+    catch(e) {
+      console.log(e)
+    }
   }, [activeSection, parsedMessage])
 
 
